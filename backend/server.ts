@@ -17,7 +17,7 @@ const saveRaceResultToJSON = (dataFrame: DataFrame) => {
   }
 };
 
-app.get("/scrape", async (req, res) => {
+app.get("/scraping", async (req, res) => {
   try {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -29,16 +29,16 @@ app.get("/scrape", async (req, res) => {
     await browser.close();
 
     const $ = cheerio.load(html);
-    const tableRows = $("table").find("tr"); // Get all rows in the table
+    const tableRows = $("table").find("tr");
 
     const data: any[] = [];
     tableRows.each((_index, element) => {
       const row: any = {};
       $(element)
-        .find("th, td") // Find all table cells in each row
+        .find("th, td")
         .each((_cellIndex, cell) => {
           const columnName = $(cell).text();
-          row[`column_${_cellIndex}`] = columnName; // Assigning column names like column_0, column_1, etc.
+          row[`column_${_cellIndex}`] = columnName;
         });
       data.push(row);
     });
