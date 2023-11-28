@@ -29,13 +29,27 @@ app.get("/scrape", async (req, res) => {
     await browser.close();
 
     const $ = cheerio.load(html);
-    const tableHTML = $("table").html();
+    const tableRows = $("table").find("tr"); // Get all rows in the table
 
-    if (tableHTML !== null) {
-      const dataFrame = new DataFrame([tableHTML]);
+    const data: any[] = [];
+    tableRows.each((_index, element) => {
+      const row: any = {};
+      $(element)
+        .find("th, td") // Find all table cells in each row
+        .each((_cellIndex, cell) => {
+          const columnName = $(cell).text();
+          row[`column_${_cellIndex}`] = columnName; // Assigning column names like column_0, column_1, etc.
+        });
+      data.push(row);
+    });
+
+    if (data.length > 0) {
+      const dataFrame = new DataFrame(data);
       saveRaceResultToJSON(dataFrame);
 
-      const finalHTML = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"></head><body>${tableHTML}</body></html>`;
+      const finalHTML = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"></head><body>${$(
+        "table"
+      )}</body></html>`;
       res.header("Content-Type", "text/html; charset=utf-8");
       res.send(finalHTML);
     } else {
