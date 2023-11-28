@@ -21,7 +21,38 @@ app.get("/scraping", async (req, res) => {
   try {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    const url = "https://db.netkeiba.com/race/202309030811/";
+    const url = "https://db.netkeiba.com/race/race_id/";
+    const start_year: number = 2020; //取得開始年
+    const end_year: number = 2023; //取得終了年
+
+    //urlのrace_idを決める関数
+    const race_id = () => {
+      let race_id_list = [];
+      const place_list = [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+      ];
+      for (let year = start_year; year < end_year + 1; year++) {
+        race_id_list.push([year]);
+        for (let place = 0; place < place_list.length; place++) {
+          race_id_list.push([place_list[place]]);
+          for (let day = 1; day < 13; day++) {
+            race_id_list.push([day]);
+            for (let race_num = 1; race_num < 13; race_num++) {
+              race_id_list.push([race_num]);
+            }
+          }
+        }
+      }
+    };
 
     await page.goto(url);
     const html = await page.content();
